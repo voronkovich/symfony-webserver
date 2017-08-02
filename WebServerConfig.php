@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Bundle\WebServerBundle;
+namespace Symfony\WebServer;
 
 /**
  * @author Fabien Potencier <fabien@symfony.com>
@@ -22,11 +22,15 @@ class WebServerConfig
     private $env;
     private $router;
 
-    public function __construct($documentRoot, $env, $address = null, $router = null)
+    public function __construct($documentRoot = null, $env = null, $address = null, $router = null)
     {
-        if (!is_dir($documentRoot)) {
+        if (null === $documentRoot) {
+            $documentRoot = $this->findDocumentRoot();
+        } elseif (!is_dir($documentRoot)) {
             throw new \InvalidArgumentException(sprintf('The document root directory "%s" does not exist.', $documentRoot));
         }
+
+        $env = $env ?: 'dev';
 
         if (null === $file = $this->findFrontController($documentRoot, $env)) {
             throw new \InvalidArgumentException(sprintf('Unable to find the front controller under "%s" (none of these files exist: %s).', $documentRoot, implode(', ', $this->getFrontControllerFileNames($env))));
@@ -128,5 +132,18 @@ class WebServerConfig
         }
 
         return $port;
+    }
+
+    private function findDocumentRoot()
+    {
+        $dirs = array('public', 'web', 'public_html');
+
+        foreach ($dirs as $dir) {
+            if (is_dir($dir)) {
+                return $dir;
+            }
+        }
+
+        return '.';
     }
 }

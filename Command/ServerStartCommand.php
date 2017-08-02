@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Bundle\WebServerBundle\Command;
+namespace Symfony\WebServer\Command;
 
-use Symfony\Bundle\WebServerBundle\WebServer;
-use Symfony\Bundle\WebServerBundle\WebServerConfig;
+use Symfony\WebServer\WebServer;
+use Symfony\WebServer\WebServerConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -45,12 +45,13 @@ class ServerStartCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('server:start')
+            ->setName('start')
             ->setDefinition(array(
                 new InputArgument('addressport', InputArgument::OPTIONAL, 'The address to listen to (can be address:port, address, or port)'),
-                new InputOption('docroot', 'd', InputOption::VALUE_REQUIRED, 'Document root'),
+                new InputOption('docroot', 'd', InputOption::VALUE_REQUIRED, 'Document root', $this->documentRoot),
                 new InputOption('router', 'r', InputOption::VALUE_REQUIRED, 'Path to custom router script'),
                 new InputOption('pidfile', null, InputOption::VALUE_REQUIRED, 'PID file'),
+                new InputOption('env', 'e', InputOption::VALUE_REQUIRED, 'The environment name', $this->environment),
             ))
             ->setDescription('Starts a local web server in the background')
             ->setHelp(<<<'EOF'
@@ -61,7 +62,7 @@ as the first free port starting from <comment>8000</>:
   <info>php %command.full_name%</info>
 
 The server is run in the background and you can keep executing other commands.
-Execute <comment>server:stop</> to stop it.
+Execute <comment>stop</> to stop it.
 
 Change the default address and port by passing them as an argument:
 
@@ -91,37 +92,19 @@ EOF
         if (!extension_loaded('pcntl')) {
             $io->error(array(
                 'This command needs the pcntl extension to run.',
-                'You can either install it or use the "server:run" command instead.',
+                'You can either install it or use the "run" command instead.',
             ));
 
-            if ($io->confirm('Do you want to execute <info>server:run</info> immediately?', false)) {
-                return $this->getApplication()->find('server:run')->run($input, $output);
+            if ($io->confirm('Do you want to execute <info>run</info> immediately?', false)) {
+                return $this->getApplication()->find('run')->run($input, $output);
             }
 
             return 1;
         }
 
-        if (null === $documentRoot = $input->getOption('docroot')) {
-            if (!$this->documentRoot) {
-                $io->error('The document root directory must be either passed as first argument of the constructor or through the "docroot" input option.');
+        $documentRoot = $input->getOption('docroot');
 
-                return 1;
-            }
-            $documentRoot = $this->documentRoot;
-        }
-
-        if (!$env = $this->environment) {
-            if ($input->hasOption('env') && !$env = $input->getOption('env')) {
-                $io->error('The environment must be either passed as second argument of the constructor or through the "--env" input option.');
-
-                return 1;
-            } else {
-                $io->error('The environment must be passed as second argument of the constructor.');
-
-                return 1;
-            }
-        }
-
+        $env = $input->getOption('env');
         if ('prod' === $env) {
             $io->error('Running this server in production environment is NOT recommended!');
         }

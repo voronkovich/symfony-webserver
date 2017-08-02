@@ -9,10 +9,10 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Bundle\WebServerBundle\Command;
+namespace Symfony\WebServer\Command;
 
-use Symfony\Bundle\WebServerBundle\WebServer;
-use Symfony\Bundle\WebServerBundle\WebServerConfig;
+use Symfony\WebServer\WebServer;
+use Symfony\WebServer\WebServerConfig;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -48,10 +48,11 @@ class ServerRunCommand extends Command
         $this
             ->setDefinition(array(
                 new InputArgument('addressport', InputArgument::OPTIONAL, 'The address to listen to (can be address:port, address, or port)'),
-                new InputOption('docroot', 'd', InputOption::VALUE_REQUIRED, 'Document root, usually where your front controllers are stored'),
+                new InputOption('docroot', 'd', InputOption::VALUE_REQUIRED, 'Document root, usually where your front controllers are stored', $this->documentRoot),
                 new InputOption('router', 'r', InputOption::VALUE_REQUIRED, 'Path to custom router script'),
+                new InputOption('env', 'e', InputOption::VALUE_REQUIRED, 'The environment name', $this->environment),
             ))
-            ->setName('server:run')
+            ->setName('run')
             ->setDescription('Runs a local web server')
             ->setHelp(<<<'EOF'
 <info>%command.name%</info> runs a local web server: By default, the server
@@ -61,7 +62,7 @@ as the first free port starting from <comment>8000</>:
   <info>%command.full_name%</info>
 
 This command blocks the console. If you want to run other commands, stop it by
-pressing <comment>Control+C</> or use the non-blocking <comment>server:start</>
+pressing <comment>Control+C</> or use the non-blocking <comment>start</>
 command instead.
 
 Change the default address and port by passing them as an argument:
@@ -89,27 +90,9 @@ EOF
     {
         $io = new SymfonyStyle($input, $output instanceof ConsoleOutputInterface ? $output->getErrorOutput() : $output);
 
-        if (null === $documentRoot = $input->getOption('docroot')) {
-            if (!$this->documentRoot) {
-                $io->error('The document root directory must be either passed as first argument of the constructor or through the "--docroot" input option.');
+        $documentRoot = $input->getOption('docroot');
 
-                return 1;
-            }
-            $documentRoot = $this->documentRoot;
-        }
-
-        if (!$env = $this->environment) {
-            if ($input->hasOption('env') && !$env = $input->getOption('env')) {
-                $io->error('The environment must be either passed as second argument of the constructor or through the "--env" input option.');
-
-                return 1;
-            } else {
-                $io->error('The environment must be passed as second argument of the constructor.');
-
-                return 1;
-            }
-        }
-
+        $env = $input->getOption('env');
         if ('prod' === $env) {
             $io->error('Running this server in production environment is NOT recommended!');
         }

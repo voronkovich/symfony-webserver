@@ -15,7 +15,7 @@
  * See: http://www.php.net/manual/en/features.commandline.webserver.php
  *
  * If you have custom directory layout, then you have to write your own router
- * and pass it as a value to 'router' option of server:run command.
+ * and pass it as a value to 'router' option of run command.
  *
  * @author: Michał Pipa <michal.pipa.xsolve@gmail.com>
  * @author: Albert Jessurum <ajessu@gmail.com>

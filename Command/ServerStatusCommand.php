@@ -9,9 +9,9 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Bundle\WebServerBundle\Command;
+namespace Symfony\WebServer\Command;
 
-use Symfony\Bundle\WebServerBundle\WebServer;
+use Symfony\WebServer\WebServer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -33,7 +33,7 @@ class ServerStatusCommand extends Command
     protected function configure()
     {
         $this
-            ->setName('server:status')
+            ->setName('status')
             ->setDefinition(array(
                 new InputOption('pidfile', null, InputOption::VALUE_REQUIRED, 'PID file'),
                 new InputOption('filter', null, InputOption::VALUE_REQUIRED, 'The value to display (one of port, host, or address)'),

@@ -9,7 +9,7 @@
  * file that was distributed with this source code.
  */
 
-namespace Symfony\Bundle\WebServerBundle\Command;
+namespace Symfony\WebServer\Command;
 
 use Symfony\Bridge\Monolog\Formatter\ConsoleFormatter;
 use Symfony\Bridge\Monolog\Handler\ConsoleHandler;
@@ -40,7 +40,7 @@ class ServerLogCommand extends Command
 
     protected function configure()
     {
-        $this->setName('server:log');
+        $this->setName('log');
 
         if (!class_exists(ConsoleFormatter::class)) {
             return;
